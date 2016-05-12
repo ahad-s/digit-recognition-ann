@@ -1,0 +1,1 @@
+Standard ANN implementation using BackProp/ForwardProp with 1 hidden layer, current training setting has 100 hidden neurons.\n Regularization parameters currently need to be adjusted and are not at optical values.
