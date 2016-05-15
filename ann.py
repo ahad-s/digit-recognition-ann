@@ -368,10 +368,11 @@ class ANN(object):
 if __name__ == '__main__':
 
 	# True to load from files, False to train ANN freshly
-	LOAD_FROM_FILE = False # WARNING: ANN TAKES A WHILE TO TRAIN!
+	# LOAD_FROM_FILE = True # UNCOMMENT THIS TO LOAD TRAINING DATA
+	# LOAD_FROM_FILE = False # UNCOMMENT THIS TO TRAIN NEW SET
 
 	TRAINING_EXAMPLES = 200
-	TESTING_EXAMPLES = 50
+	TESTING_EXAMPLES = 300
 	LAMBDA = 1
 
 	print "--------------"
