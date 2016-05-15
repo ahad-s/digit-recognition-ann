@@ -9,7 +9,7 @@ import pickle
 Created by: Ahad Shoaib
 """
 
-ZERO_EPSILON = 0.0000000000000000000000000000000000000000000000000000000000000000000000000001
+ZERO_EPSILON = 0.0000000001
 
 
 TRAINING_IMAGES_NAME = "train-images-idx3-ubyte"
@@ -131,7 +131,7 @@ class ANN(object):
 	global ZERO_EPSILON
 
 	INPUT_NEURONS = 784 # 28 x 28 image sizes
-	HIDDEN_NEURONS = 100 # may change later
+	HIDDEN_NEURONS = 300 # may change later
 	OUTPUT_NEURONS = 10
 
 	# INPUT_NEURONS = 2
@@ -145,12 +145,13 @@ class ANN(object):
 	y = M x 1
 	"""
 
-	def __init__(self, theta = None, X = None, y = None, LAMBDA = 0.00001):
+	def __init__(self, theta = None, X = None, y = None, reg_const = 0.00001):
 		# TODO Load from theano/numpy/something as an array
 		self.X = X # 6000 x (784 + 1)
 		self.y = y # 6000 x 1
-		self.M = X.shape[0]
-		self.LAMBDA = LAMBDA
+		if not (X is None or y is None):
+			self.M = X.shape[0]
+		self.LAMBDA = reg_const
 
 		if theta is None: # == will be elementwise check
 			theta1, theta2 = self.random_init()
@@ -355,7 +356,7 @@ class ANN(object):
 
 
 	# will use SGD later maybe, this is temporary/faster
-	def train(self, myiter = 100):
+	def train(self, myiter = 200):
 		print "training..."
 		init_theta = self.get_theta()
 		theta = fmin_cg(self.cost, init_theta, args = (self.X, self.y, self.LAMBDA), 
@@ -368,16 +369,17 @@ class ANN(object):
 if __name__ == '__main__':
 
 	# True to load from files, False to train ANN freshly
-	# LOAD_FROM_FILE = True # UNCOMMENT THIS TO LOAD TRAINING DATA
+	LOAD_FROM_FILE = True # UNCOMMENT THIS TO LOAD TRAINING DATA
 	# LOAD_FROM_FILE = False # UNCOMMENT THIS TO TRAIN NEW SET
 
-	TRAINING_EXAMPLES = 200
+	TRAINING_EXAMPLES = 4000
 	TESTING_EXAMPLES = 300
-	LAMBDA = 1
+	LAMBDA = 0.00001
 
 	print "--------------"
 
-	print "[TRAINING_EXAMLES = %d]"
+	print "[TRAINING_EXAMPLES = %d]" % TRAINING_EXAMPLES
+	print "[TESTING_EXAMPLES = %d]" % TESTING_EXAMPLES
 
 	train_data = DataProcess(training = True, m = TRAINING_EXAMPLES)
 	X, y = train_data.get_data()
@@ -388,20 +390,21 @@ if __name__ == '__main__':
 	print "--------------"
 
 	if LOAD_FROM_FILE:
-		trained_theta = np.load("trained_params.npy", allow_pickle = True)
-		ann = ANN(theta = trained_theta, X = np.asmatrix(X), y = np.asmatrix(y))
+		trained_theta = np.load("trained_params" + str(TRAINING_EXAMPLES) + "_" + str(LAMBDA) + ".npy", \
+			allow_pickle = True)
+		ann = ANN(theta = trained_theta, reg_const = LAMBDA)
 	else:
-		ann = ANN(X = np.asmatrix(X), y = np.asmatrix(y))
+		ann = ANN(X = np.asmatrix(X), y = np.asmatrix(y), reg_const = LAMBDA)
 		trained_theta = ann.train()
-		np.save("trained_params", trained_theta, allow_pickle = True)
+		np.save("trained_params" + str(TRAINING_EXAMPLES) + "_" + str(LAMBDA) + ".npy", trained_theta, allow_pickle = True)
 
 	print "--------------"
 
 	prediction = ann.predict(trained_theta, X_test)
-	print "[PREDICTIONS]:"
-	print prediction
-	print "[ACTUAL]:"
-	print y_test
+	# print "[PREDICTIONS]:"
+	# print prediction
+	# print "[ACTUAL]:"
+	# print y_test
 	print "Accuracy = [%.2f]" % ((y_test[np.where(prediction == y_test)].size / float(y_test.size)) * 100.00)
 
 	print "--------------"
